@@ -1,10 +1,10 @@
-# Hanoy_game (Ханойские башни)
-Это творение было создано на заре моей юности (не без костылей).
+# Hanoy_game (Hanoi towers)
+It's my old old java work.
 ![screenshot](https://i.imgur.com/GTw6CbXg.png)
-## Основное управление
-Основной принцип - не надо наводить курсор на кольцо, достаточно просто нажать где-то над ним и начать перетаскивать
-* __R__ - сбросить игру
-* __T__ - увеличить кол-во колец
-* __Y__ - уменьшить кол-во колец
-## Баги
-Есть баг, который возникает при одновременном (почти одновременном) забрасывании двух колец в одну позицию
+## Controls
+You don't need to point the coursor on the ring, you can just click above it and start dragging.
+* __R__ - reset game
+* __T__ - increase rings count
+* __Y__ - decrease rings count
+## Bugs
+There is a bug when two rings are almost simultaneously placed on one bar.
