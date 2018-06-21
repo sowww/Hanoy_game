@@ -219,22 +219,22 @@ public class HanoyGame extends JFrame implements Runnable, KeyListener, MouseInp
     
     
     //HANOY_GAME VARIABLES
-    Thread runner; // Поток
+    Thread runner; // РџРѕС‚РѕРє
     
-    Image bufferImage = null;   // Изображение для прорисовки paint()
-    Graphics2D g2Buffer;        // Компонент рисующий в буфер
+    Image bufferImage = null;   // РР·РѕР±СЂР°Р¶РµРЅРёРµ РґР»СЏ РїСЂРѕСЂРёСЃРѕРІРєРё paint()
+    Graphics2D g2Buffer;        // РљРѕРјРїРѕРЅРµРЅС‚ СЂРёСЃСѓСЋС‰РёР№ РІ Р±СѓС„РµСЂ
     
     enum Status {NOT_MOVING, DRAGING_ON_COLUMN, DRAGING_OFF_COLUMN, FALLING}
     
-    int HANOY_RECTS_COUNT = 5;      // Количество колец
-    int HANOY_RECTS_HEIGHT = 30;    // Высота кольца
-    int COLUMNS_COUNT = 3;          // Количество столбцов, 3 не обсуждается
+    int HANOY_RECTS_COUNT = 5;      // РљРѕР»РёС‡РµСЃС‚РІРѕ РєРѕР»РµС†
+    int HANOY_RECTS_HEIGHT = 30;    // Р’С‹СЃРѕС‚Р° РєРѕР»СЊС†Р°
+    int COLUMNS_COUNT = 3;          // РљРѕР»РёС‡РµСЃС‚РІРѕ СЃС‚РѕР»Р±С†РѕРІ, 3 РЅРµ РѕР±СЃСѓР¶РґР°РµС‚СЃСЏ
     
-    int draggingHanoyRect = -1;     // Какое кольцо перетаскивается, если никакое, то -1
+    int draggingHanoyRect = -1;     // РљР°РєРѕРµ РєРѕР»СЊС†Рѕ РїРµСЂРµС‚Р°СЃРєРёРІР°РµС‚СЃСЏ, РµСЃР»Рё РЅРёРєР°РєРѕРµ, С‚Рѕ -1
     
-    int frontier_0, frontier_1;     // Середины между столбиком 1 и 2, и между столбиком 2 и 3
+    int frontier_0, frontier_1;     // РЎРµСЂРµРґРёРЅС‹ РјРµР¶РґСѓ СЃС‚РѕР»Р±РёРєРѕРј 1 Рё 2, Рё РјРµР¶РґСѓ СЃС‚РѕР»Р±РёРєРѕРј 2 Рё 3
     
-    int mx, my;                     // Переменные содержащие координату курсора мыши
+    int mx, my;                     // РџРµСЂРµРјРµРЅРЅС‹Рµ СЃРѕРґРµСЂР¶Р°С‰РёРµ РєРѕРѕСЂРґРёРЅР°С‚Сѓ РєСѓСЂСЃРѕСЂР° РјС‹С€Рё
     
     boolean gameOver;
     
@@ -242,8 +242,8 @@ public class HanoyGame extends JFrame implements Runnable, KeyListener, MouseInp
     HanoyRect[] hanoyRects = new HanoyRect[20];
     
     int 
-        FRAME_WIDTH = 800,      // Ширина окна
-        FRAME_HEIGHT = 400;     // Высота окна
+        FRAME_WIDTH = 800,      // РЁРёСЂРёРЅР° РѕРєРЅР°
+        FRAME_HEIGHT = 400;     // Р’С‹СЃРѕС‚Р° РѕРєРЅР°
     
     public HanoyGame() {
         super("Hanoy game");
@@ -252,57 +252,57 @@ public class HanoyGame extends JFrame implements Runnable, KeyListener, MouseInp
     public void init() {
         this.setResizable(false);                           /////
         this.setBounds(30, 30, FRAME_WIDTH, FRAME_HEIGHT);  //
-        this.setDefaultCloseOperation(EXIT_ON_CLOSE);       // Настраиваем окно
+        this.setDefaultCloseOperation(EXIT_ON_CLOSE);       // РќР°СЃС‚СЂР°РёРІР°РµРј РѕРєРЅРѕ
         this.setVisible(true);                              //
         this.setBackground(Color.WHITE);                    //
         this.setFocusable(true);                            /////
         
         gameOver = false;
         
-        // Создаем 3 столбика
+        // РЎРѕР·РґР°РµРј 3 СЃС‚РѕР»Р±РёРєР°
         for (int i = 0; i <= COLUMNS_COUNT - 1; i++) {  
             hanoyColumns[i] = new HanoyColumn(i);
         }
         
-        // Вычисляем границы между областями столбиков
+        // Р’С‹С‡РёСЃР»СЏРµРј РіСЂР°РЅРёС†С‹ РјРµР¶РґСѓ РѕР±Р»Р°СЃС‚СЏРјРё СЃС‚РѕР»Р±РёРєРѕРІ
         frontier_0 = (hanoyColumns[0].getMiddleX()+hanoyColumns[1].getMiddleX())/2;
         frontier_1 = (hanoyColumns[1].getMiddleX()+hanoyColumns[2].getMiddleX())/2;
 
-        // Создаем кольца
+        // РЎРѕР·РґР°РµРј РєРѕР»СЊС†Р°
         for (int i        = 0; i <= HANOY_RECTS_COUNT - 1; i++) {
             hanoyRects[i] = new HanoyRect(0, HANOY_RECTS_COUNT - i - 1, i+1);
             hanoyColumns[0].addRectToStack(HANOY_RECTS_COUNT - i - 1);
         }
         
-        bufferImage = createImage(FRAME_WIDTH, FRAME_HEIGHT);   // Подгоняем буфер под разрешение
-        g2Buffer = (Graphics2D)bufferImage.getGraphics();       // Присоединяем графику к этому буферу, чтоб она рисовала в него
+        bufferImage = createImage(FRAME_WIDTH, FRAME_HEIGHT);   // РџРѕРґРіРѕРЅСЏРµРј Р±СѓС„РµСЂ РїРѕРґ СЂР°Р·СЂРµС€РµРЅРёРµ
+        g2Buffer = (Graphics2D)bufferImage.getGraphics();       // РџСЂРёСЃРѕРµРґРёРЅСЏРµРј РіСЂР°С„РёРєСѓ Рє СЌС‚РѕРјСѓ Р±СѓС„РµСЂСѓ, С‡С‚РѕР± РѕРЅР° СЂРёСЃРѕРІР°Р»Р° РІ РЅРµРіРѕ
         
-        // Красим экран в белый цвет
+        // РљСЂР°СЃРёРј СЌРєСЂР°РЅ РІ Р±РµР»С‹Р№ С†РІРµС‚
         g2Buffer.setColor(Color.WHITE);
         g2Buffer.fillRect(0, 0, FRAME_WIDTH, FRAME_HEIGHT);
         
-        // Настраиваем сглаживание
+        // РќР°СЃС‚СЂР°РёРІР°РµРј СЃРіР»Р°Р¶РёРІР°РЅРёРµ
         g2Buffer.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         
-        // Стартуем поток выполнения
+        // РЎС‚Р°СЂС‚СѓРµРј РїРѕС‚РѕРє РІС‹РїРѕР»РЅРµРЅРёСЏ
         this.start();
     }
     
     public static void main(String[] args) {
 
-        HanoyGame hanoyGameFrame = new HanoyGame(); // Создаем экземпляр игры
+        HanoyGame hanoyGameFrame = new HanoyGame(); // РЎРѕР·РґР°РµРј СЌРєР·РµРјРїР»СЏСЂ РёРіСЂС‹
         
-        // Добовляем слушателей
+        // Р”РѕР±РѕРІР»СЏРµРј СЃР»СѓС€Р°С‚РµР»РµР№
         hanoyGameFrame.addKeyListener(hanoyGameFrame);
         hanoyGameFrame.addMouseListener(hanoyGameFrame);
         hanoyGameFrame.addMouseMotionListener(hanoyGameFrame);
         
-        // Инициалицируем
+        // РРЅРёС†РёР°Р»РёС†РёСЂСѓРµРј
         hanoyGameFrame.init();
     }
     
     
-    // Функция определения знака + или -
+    // Р¤СѓРЅРєС†РёСЏ РѕРїСЂРµРґРµР»РµРЅРёСЏ Р·РЅР°РєР° + РёР»Рё -
     public int sign(int i) {
         if (i < 0) {
             return -1;
@@ -313,7 +313,7 @@ public class HanoyGame extends JFrame implements Runnable, KeyListener, MouseInp
         }
     }
     
-    // Очистка буфера
+    // РћС‡РёСЃС‚РєР° Р±СѓС„РµСЂР°
     private void clearBuffer() {
         g2Buffer.clearRect(0, 0, FRAME_WIDTH, FRAME_HEIGHT);
         
@@ -326,35 +326,35 @@ public class HanoyGame extends JFrame implements Runnable, KeyListener, MouseInp
         g2Buffer.drawLine(frontier_1, 0, frontier_1, FRAME_HEIGHT);
     }
     
-    // Прорисовка столбиков
+    // РџСЂРѕСЂРёСЃРѕРІРєР° СЃС‚РѕР»Р±РёРєРѕРІ
     private void fillColumns() {
-        g2Buffer.setColor(Color.DARK_GRAY);     // Задаем цвет столбиков
-        int X, Y, WIDTH, HEIGHT;                // Переменные для передачу в функцию
-        int ARC_RADIUS = 12;                    // Радиус скругления
-        for (HanoyColumn hanoyColumn : hanoyColumns) {              // Для каждого из столбиков
-            X = hanoyColumn.getMiddleX() - hanoyColumn.WIDTH/2;     // Расчет координаты X
-            Y = hanoyColumn.getBottomY() - hanoyColumn.HEIGHT;      // Расчет координаты Y (т.к. прямоугольник рисуется сверху пересчитываем координату из значения низа столбика)
-            WIDTH = hanoyColumn.getWidth();                         // Ширина
-            HEIGHT = hanoyColumn.getHeight();                       // Высота
-            g2Buffer.fillRoundRect(X, Y+5, WIDTH, HEIGHT+5, ARC_RADIUS, ARC_RADIUS); // Рисуем в буфер
+        g2Buffer.setColor(Color.DARK_GRAY);     // Р—Р°РґР°РµРј С†РІРµС‚ СЃС‚РѕР»Р±РёРєРѕРІ
+        int X, Y, WIDTH, HEIGHT;                // РџРµСЂРµРјРµРЅРЅС‹Рµ РґР»СЏ РїРµСЂРµРґР°С‡Сѓ РІ С„СѓРЅРєС†РёСЋ
+        int ARC_RADIUS = 12;                    // Р Р°РґРёСѓСЃ СЃРєСЂСѓРіР»РµРЅРёСЏ
+        for (HanoyColumn hanoyColumn : hanoyColumns) {              // Р”Р»СЏ РєР°Р¶РґРѕРіРѕ РёР· СЃС‚РѕР»Р±РёРєРѕРІ
+            X = hanoyColumn.getMiddleX() - hanoyColumn.WIDTH/2;     // Р Р°СЃС‡РµС‚ РєРѕРѕСЂРґРёРЅР°С‚С‹ X
+            Y = hanoyColumn.getBottomY() - hanoyColumn.HEIGHT;      // Р Р°СЃС‡РµС‚ РєРѕРѕСЂРґРёРЅР°С‚С‹ Y (С‚.Рє. РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРёРє СЂРёСЃСѓРµС‚СЃСЏ СЃРІРµСЂС…Сѓ РїРµСЂРµСЃС‡РёС‚С‹РІР°РµРј РєРѕРѕСЂРґРёРЅР°С‚Сѓ РёР· Р·РЅР°С‡РµРЅРёСЏ РЅРёР·Р° СЃС‚РѕР»Р±РёРєР°)
+            WIDTH = hanoyColumn.getWidth();                         // РЁРёСЂРёРЅР°
+            HEIGHT = hanoyColumn.getHeight();                       // Р’С‹СЃРѕС‚Р°
+            g2Buffer.fillRoundRect(X, Y+5, WIDTH, HEIGHT+5, ARC_RADIUS, ARC_RADIUS); // Р РёСЃСѓРµРј РІ Р±СѓС„РµСЂ
         }
     }
     
-    // Отрисовка колец
+    // РћС‚СЂРёСЃРѕРІРєР° РєРѕР»РµС†
     private void fillRects() {
-        int X, Y, WIDTH, HEIGHT;    // Переменные для передачи в финкцию
-        int ARC_RADIUS = 15;        // Радиус скругления
+        int X, Y, WIDTH, HEIGHT;    // РџРµСЂРµРјРµРЅРЅС‹Рµ РґР»СЏ РїРµСЂРµРґР°С‡Рё РІ С„РёРЅРєС†РёСЋ
+        int ARC_RADIUS = 15;        // Р Р°РґРёСѓСЃ СЃРєСЂСѓРіР»РµРЅРёСЏ
         
-        for (int i = 0 ; i <= HANOY_RECTS_COUNT - 1; i++) { // Для каждого кольца
+        for (int i = 0 ; i <= HANOY_RECTS_COUNT - 1; i++) { // Р”Р»СЏ РєР°Р¶РґРѕРіРѕ РєРѕР»СЊС†Р°
 
-            // Задаем
+            // Р—Р°РґР°РµРј
             X = hanoyRects[i].getX();               // X  
             Y = hanoyRects[i].getY();               // Y
-            WIDTH = hanoyRects[i].getWidth();       // Ширина
-            HEIGHT = hanoyRects[i].getHeight();     // Высота
-            g2Buffer.setColor(hanoyRects[i].color); // Цвет
+            WIDTH = hanoyRects[i].getWidth();       // РЁРёСЂРёРЅР°
+            HEIGHT = hanoyRects[i].getHeight();     // Р’С‹СЃРѕС‚Р°
+            g2Buffer.setColor(hanoyRects[i].color); // Р¦РІРµС‚
             
-            g2Buffer.fillRoundRect(X, Y, WIDTH, HEIGHT, ARC_RADIUS, ARC_RADIUS); // Рисуем прямоугольник
+            g2Buffer.fillRoundRect(X, Y, WIDTH, HEIGHT, ARC_RADIUS, ARC_RADIUS); // Р РёСЃСѓРµРј РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРёРє
         }
     }
     
@@ -365,16 +365,16 @@ public class HanoyGame extends JFrame implements Runnable, KeyListener, MouseInp
         g2Buffer.drawString("WIN!", FRAME_WIDTH / 2 - 80, FRAME_HEIGHT / 2 - 100);
     }
     
-    // Функция отрисовки
+    // Р¤СѓРЅРєС†РёСЏ РѕС‚СЂРёСЃРѕРІРєРё
     public void paint(Graphics g) {
-        clearBuffer();  // Очищаем буфер
-        fillColumns();  // Пририсовываем столбики
-        fillRects();    // Пририсовываем кольца
+        clearBuffer();  // РћС‡РёС‰Р°РµРј Р±СѓС„РµСЂ
+        fillColumns();  // РџСЂРёСЂРёСЃРѕРІС‹РІР°РµРј СЃС‚РѕР»Р±РёРєРё
+        fillRects();    // РџСЂРёСЂРёСЃРѕРІС‹РІР°РµРј РєРѕР»СЊС†Р°
         if (gameOver) { drawGameOver(); }
-        g.drawImage(bufferImage, 0, 0, null); // Выводим буфер на экран
+        g.drawImage(bufferImage, 0, 0, null); // Р’С‹РІРѕРґРёРј Р±СѓС„РµСЂ РЅР° СЌРєСЂР°РЅ
     }
     
-    // Функция обновления
+    // Р¤СѓРЅРєС†РёСЏ РѕР±РЅРѕРІР»РµРЅРёСЏ
     public void update(Graphics g) {
         paint(g); 
     }
@@ -384,9 +384,9 @@ public class HanoyGame extends JFrame implements Runnable, KeyListener, MouseInp
     
     ////////////////////////////////////////
     //
-    //// Работа с потоками
+    //// Р Р°Р±РѕС‚Р° СЃ РїРѕС‚РѕРєР°РјРё
     //
-    // Функция запускающая поток
+    // Р¤СѓРЅРєС†РёСЏ Р·Р°РїСѓСЃРєР°СЋС‰Р°СЏ РїРѕС‚РѕРє
     public void start() {
         if (runner == null) {
             runner = new Thread(this);
@@ -394,7 +394,7 @@ public class HanoyGame extends JFrame implements Runnable, KeyListener, MouseInp
         }
     }
     
-    // Функция для остановки потока
+    // Р¤СѓРЅРєС†РёСЏ РґР»СЏ РѕСЃС‚Р°РЅРѕРІРєРё РїРѕС‚РѕРєР°
     public void stop() {
         if (runner != null) {
             runner.stop();
@@ -402,7 +402,7 @@ public class HanoyGame extends JFrame implements Runnable, KeyListener, MouseInp
         }
     }
     
-    // Тело потока
+    // РўРµР»Рѕ РїРѕС‚РѕРєР°
     @Override
     public void run() {
         while (true) {
@@ -426,28 +426,28 @@ public class HanoyGame extends JFrame implements Runnable, KeyListener, MouseInp
     
     ////////////////////////////////////////
     //
-    //// Работа с клавиатурой
+    //// Р Р°Р±РѕС‚Р° СЃ РєР»Р°РІРёР°С‚СѓСЂРѕР№
     //
-    // Обработка нажатой клавиши
+    // РћР±СЂР°Р±РѕС‚РєР° РЅР°Р¶Р°С‚РѕР№ РєР»Р°РІРёС€Рё
     @Override
     public void keyPressed(KeyEvent e) {
-        switch (e.getKeyCode()) {   // В зависимости от того что нажато:
-        case 82:                    // Если нажато "R":
-            init();                 // Просто заново инициализаруем все
+        switch (e.getKeyCode()) {   // Р’ Р·Р°РІРёСЃРёРјРѕСЃС‚Рё РѕС‚ С‚РѕРіРѕ С‡С‚Рѕ РЅР°Р¶Р°С‚Рѕ:
+        case 82:                    // Р•СЃР»Рё РЅР°Р¶Р°С‚Рѕ "R":
+            init();                 // РџСЂРѕСЃС‚Рѕ Р·Р°РЅРѕРІРѕ РёРЅРёС†РёР°Р»РёР·Р°СЂСѓРµРј РІСЃРµ
             break;
-        case 84:                    // Если нажато "T":
-            HANOY_RECTS_COUNT++;    // Увеличиваем число колец
-            init();                 // Заново инициализируем программу
+        case 84:                    // Р•СЃР»Рё РЅР°Р¶Р°С‚Рѕ "T":
+            HANOY_RECTS_COUNT++;    // РЈРІРµР»РёС‡РёРІР°РµРј С‡РёСЃР»Рѕ РєРѕР»РµС†
+            init();                 // Р—Р°РЅРѕРІРѕ РёРЅРёС†РёР°Р»РёР·РёСЂСѓРµРј РїСЂРѕРіСЂР°РјРјСѓ
             break;
-        case 89:                    // Если нажато "Y":
-            HANOY_RECTS_COUNT--;    // Уменьшаем число колец
-            init();                 // Заново инициализируем программу
+        case 89:                    // Р•СЃР»Рё РЅР°Р¶Р°С‚Рѕ "Y":
+            HANOY_RECTS_COUNT--;    // РЈРјРµРЅСЊС€Р°РµРј С‡РёСЃР»Рѕ РєРѕР»РµС†
+            init();                 // Р—Р°РЅРѕРІРѕ РёРЅРёС†РёР°Р»РёР·РёСЂСѓРµРј РїСЂРѕРіСЂР°РјРјСѓ
             break;
         default:
             break;
-        }                           // Конец выбора
+        }                           // РљРѕРЅРµС† РІС‹Р±РѕСЂР°
         
-        System.out.println(e.getKeyCode()); // Вывод кода нажатой клавиши
+        System.out.println(e.getKeyCode()); // Р’С‹РІРѕРґ РєРѕРґР° РЅР°Р¶Р°С‚РѕР№ РєР»Р°РІРёС€Рё
         e.consume();
     }
     
