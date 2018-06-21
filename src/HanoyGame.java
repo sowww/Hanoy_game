@@ -242,8 +242,8 @@ public class HanoyGame extends JFrame implements Runnable, KeyListener, MouseInp
     HanoyRect[] hanoyRects = new HanoyRect[20];
     
     int 
-        FRAME_WIDTH = 800,      // Ширина окна
-        FRAME_HEIGHT = 400;     // Высота окна
+        FRAME_WIDTH = 800,      // Frame width
+        FRAME_HEIGHT = 400;     // Frame height
     
     public HanoyGame() {
         super("Hanoy game");
