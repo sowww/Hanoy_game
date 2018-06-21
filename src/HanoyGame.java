@@ -219,22 +219,22 @@ public class HanoyGame extends JFrame implements Runnable, KeyListener, MouseInp
     
     
     //HANOY_GAME VARIABLES
-    Thread runner; // Поток
+    Thread runner;
     
-    Image bufferImage = null;   // Изображение для прорисовки paint()
-    Graphics2D g2Buffer;        // Компонент рисующий в буфер
+    Image bufferImage = null;   // bufferImage for paint()
+    Graphics2D g2Buffer;        // Component that draws into the buffer
     
     enum Status {NOT_MOVING, DRAGING_ON_COLUMN, DRAGING_OFF_COLUMN, FALLING}
     
-    int HANOY_RECTS_COUNT = 5;      // Количество колец
-    int HANOY_RECTS_HEIGHT = 30;    // Высота кольца
-    int COLUMNS_COUNT = 3;          // Количество столбцов, 3 не обсуждается
+    int HANOY_RECTS_COUNT = 5;      // Rings count
+    int HANOY_RECTS_HEIGHT = 30;    // Ring height
+    int COLUMNS_COUNT = 3;          // Bars count
     
-    int draggingHanoyRect = -1;     // Какое кольцо перетаскивается, если никакое, то -1
+    int draggingHanoyRect = -1;     // Which ring is dragging (-1 for no ring)
     
-    int frontier_0, frontier_1;     // Середины между столбиком 1 и 2, и между столбиком 2 и 3
+    int frontier_0, frontier_1;     // Center between 1 and 2 bars, center between 2 and 3 bars
     
-    int mx, my;                     // Переменные содержащие координату курсора мыши
+    int mx, my;                     // Mouse coords
     
     boolean gameOver;
     
@@ -250,59 +250,61 @@ public class HanoyGame extends JFrame implements Runnable, KeyListener, MouseInp
     }
     
     public void init() {
-        this.setResizable(false);                           /////
-        this.setBounds(30, 30, FRAME_WIDTH, FRAME_HEIGHT);  //
-        this.setDefaultCloseOperation(EXIT_ON_CLOSE);       // Настраиваем окно
-        this.setVisible(true);                              //
-        this.setBackground(Color.WHITE);                    //
-        this.setFocusable(true);                            /////
+        // Setting up window
+        this.setResizable(false);
+        this.setBounds(30, 30, FRAME_WIDTH, FRAME_HEIGHT);
+        this.setDefaultCloseOperation(EXIT_ON_CLOSE);
+        this.setVisible(true);
+        this.setBackground(Color.WHITE);
+        this.setFocusable(true);
         
         gameOver = false;
         
-        // Создаем 3 столбика
+        // Create bars
         for (int i = 0; i <= COLUMNS_COUNT - 1; i++) {  
             hanoyColumns[i] = new HanoyColumn(i);
         }
         
-        // Вычисляем границы между областями столбиков
+        // Calculate frontiers
         frontier_0 = (hanoyColumns[0].getMiddleX()+hanoyColumns[1].getMiddleX())/2;
         frontier_1 = (hanoyColumns[1].getMiddleX()+hanoyColumns[2].getMiddleX())/2;
 
-        // Создаем кольца
-        for (int i        = 0; i <= HANOY_RECTS_COUNT - 1; i++) {
+        // Create rings
+        for (int i = 0; i <= HANOY_RECTS_COUNT - 1; i++) {
             hanoyRects[i] = new HanoyRect(0, HANOY_RECTS_COUNT - i - 1, i+1);
             hanoyColumns[0].addRectToStack(HANOY_RECTS_COUNT - i - 1);
         }
         
-        bufferImage = createImage(FRAME_WIDTH, FRAME_HEIGHT);   // Подгоняем буфер под разрешение
-        g2Buffer = (Graphics2D)bufferImage.getGraphics();       // Присоединяем графику к этому буферу, чтоб она рисовала в него
+        bufferImage = createImage(FRAME_WIDTH, FRAME_HEIGHT);   // Setting up buffer size
+        g2Buffer = (Graphics2D)bufferImage.getGraphics();       // Connecting graphics to this buffer
         
-        // Красим экран в белый цвет
+        // Filling background
         g2Buffer.setColor(Color.WHITE);
         g2Buffer.fillRect(0, 0, FRAME_WIDTH, FRAME_HEIGHT);
         
-        // Настраиваем сглаживание
+        // Setting up text rendering
         g2Buffer.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         
-        // Стартуем поток выполнения
+        // Starting a thread
         this.start();
     }
     
     public static void main(String[] args) {
 
-        HanoyGame hanoyGameFrame = new HanoyGame(); // Создаем экземпляр игры
+        // Creating a game
+        HanoyGame hanoyGameFrame = new HanoyGame();
         
-        // Добовляем слушателей
+        // Adding listeners
         hanoyGameFrame.addKeyListener(hanoyGameFrame);
         hanoyGameFrame.addMouseListener(hanoyGameFrame);
         hanoyGameFrame.addMouseMotionListener(hanoyGameFrame);
         
-        // Инициалицируем
+        // Initialization
         hanoyGameFrame.init();
     }
     
     
-    // Функция определения знака + или -
+    // Sing calculation function
     public int sign(int i) {
         if (i < 0) {
             return -1;
@@ -313,7 +315,7 @@ public class HanoyGame extends JFrame implements Runnable, KeyListener, MouseInp
         }
     }
     
-    // Очистка буфера
+    // Cleaning the buffer
     private void clearBuffer() {
         g2Buffer.clearRect(0, 0, FRAME_WIDTH, FRAME_HEIGHT);
         
@@ -326,35 +328,35 @@ public class HanoyGame extends JFrame implements Runnable, KeyListener, MouseInp
         g2Buffer.drawLine(frontier_1, 0, frontier_1, FRAME_HEIGHT);
     }
     
-    // Прорисовка столбиков
+    // Drawing bars
     private void fillColumns() {
-        g2Buffer.setColor(Color.DARK_GRAY);     // Задаем цвет столбиков
-        int X, Y, WIDTH, HEIGHT;                // Переменные для передачу в функцию
-        int ARC_RADIUS = 12;                    // Радиус скругления
-        for (HanoyColumn hanoyColumn : hanoyColumns) {              // Для каждого из столбиков
-            X = hanoyColumn.getMiddleX() - hanoyColumn.WIDTH/2;     // Расчет координаты X
-            Y = hanoyColumn.getBottomY() - hanoyColumn.HEIGHT;      // Расчет координаты Y (т.к. прямоугольник рисуется сверху пересчитываем координату из значения низа столбика)
-            WIDTH = hanoyColumn.getWidth();                         // Ширина
-            HEIGHT = hanoyColumn.getHeight();                       // Высота
-            g2Buffer.fillRoundRect(X, Y+5, WIDTH, HEIGHT+5, ARC_RADIUS, ARC_RADIUS); // Рисуем в буфер
+        g2Buffer.setColor(Color.DARK_GRAY);     // Setting up colors
+        int X, Y, WIDTH, HEIGHT;                //
+        int ARC_RADIUS = 12;                    // Corners radius
+        for (HanoyColumn hanoyColumn : hanoyColumns) {              // for each bar
+            X = hanoyColumn.getMiddleX() - hanoyColumn.WIDTH/2;     // Calculating coords and size
+            Y = hanoyColumn.getBottomY() - hanoyColumn.HEIGHT;      // 
+            WIDTH = hanoyColumn.getWidth();                         // 
+            HEIGHT = hanoyColumn.getHeight();                       //
+            g2Buffer.fillRoundRect(X, Y+5, WIDTH, HEIGHT+5, ARC_RADIUS, ARC_RADIUS); // Draw to the buffer
         }
     }
     
-    // Отрисовка колец
+    // Drawing rings
     private void fillRects() {
-        int X, Y, WIDTH, HEIGHT;    // Переменные для передачи в финкцию
-        int ARC_RADIUS = 15;        // Радиус скругления
+        int X, Y, WIDTH, HEIGHT;    //
+        int ARC_RADIUS = 15;        // Corners radius
         
-        for (int i = 0 ; i <= HANOY_RECTS_COUNT - 1; i++) { // Для каждого кольца
+        for (int i = 0 ; i <= HANOY_RECTS_COUNT - 1; i++) { // for each ring
 
             // Задаем
             X = hanoyRects[i].getX();               // X  
             Y = hanoyRects[i].getY();               // Y
-            WIDTH = hanoyRects[i].getWidth();       // Ширина
-            HEIGHT = hanoyRects[i].getHeight();     // Высота
-            g2Buffer.setColor(hanoyRects[i].color); // Цвет
+            WIDTH = hanoyRects[i].getWidth();       // Width
+            HEIGHT = hanoyRects[i].getHeight();     // Height
+            g2Buffer.setColor(hanoyRects[i].color); // Color
             
-            g2Buffer.fillRoundRect(X, Y, WIDTH, HEIGHT, ARC_RADIUS, ARC_RADIUS); // Рисуем прямоугольник
+            g2Buffer.fillRoundRect(X, Y, WIDTH, HEIGHT, ARC_RADIUS, ARC_RADIUS); // Draw to the buffer
         }
     }
     
@@ -367,26 +369,21 @@ public class HanoyGame extends JFrame implements Runnable, KeyListener, MouseInp
     
     // Функция отрисовки
     public void paint(Graphics g) {
-        clearBuffer();  // Очищаем буфер
-        fillColumns();  // Пририсовываем столбики
-        fillRects();    // Пририсовываем кольца
+        clearBuffer();  // Clear buffer
+        fillColumns();  // Draw bars
+        fillRects();    // Draw rings
         if (gameOver) { drawGameOver(); }
-        g.drawImage(bufferImage, 0, 0, null); // Выводим буфер на экран
+        g.drawImage(bufferImage, 0, 0, null); // Show buffer
     }
     
-    // Функция обновления
     public void update(Graphics g) {
         paint(g); 
     }
-    //
-    ////////////////////////////////////////
 
     
-    ////////////////////////////////////////
+    //// Threads part
     //
-    //// Работа с потоками
-    //
-    // Функция запускающая поток
+    // Starting a thread
     public void start() {
         if (runner == null) {
             runner = new Thread(this);
@@ -394,7 +391,7 @@ public class HanoyGame extends JFrame implements Runnable, KeyListener, MouseInp
         }
     }
     
-    // Функция для остановки потока
+    // Stoping a thread
     public void stop() {
         if (runner != null) {
             runner.stop();
@@ -402,7 +399,7 @@ public class HanoyGame extends JFrame implements Runnable, KeyListener, MouseInp
         }
     }
     
-    // Тело потока
+    // Thread body
     @Override
     public void run() {
         while (true) {
@@ -421,45 +418,36 @@ public class HanoyGame extends JFrame implements Runnable, KeyListener, MouseInp
         }
     }
     //
-    ////////////////////////////////////////
+    ////
 
     
-    ////////////////////////////////////////
+    //// Keyboard
     //
-    //// Работа с клавиатурой
-    //
-    // Обработка нажатой клавиши
+    // Key pressed event
     @Override
     public void keyPressed(KeyEvent e) {
-        switch (e.getKeyCode()) {   // В зависимости от того что нажато:
-        case 82:                    // Если нажато "R":
-            init();                 // Просто заново инициализаруем все
+        switch (e.getKeyCode()) {   //
+        case 82:                    // "R" pressed:
+            init();                 // Reinitialize a game
             break;
-        case 84:                    // Если нажато "T":
-            HANOY_RECTS_COUNT++;    // Увеличиваем число колец
-            init();                 // Заново инициализируем программу
+        case 84:                    // "T" pressed:
+            HANOY_RECTS_COUNT++;    // Increase rings count
+            init();                 // Reinitialize a game
             break;
-        case 89:                    // Если нажато "Y":
-            HANOY_RECTS_COUNT--;    // Уменьшаем число колец
-            init();                 // Заново инициализируем программу
+        case 89:                    // "Y" pressed:
+            HANOY_RECTS_COUNT--;    // Decrease rings count
+            init();                 // Reinitialize a game
             break;
         default:
             break;
-        }                           // Конец выбора
+        }
         
-        System.out.println(e.getKeyCode()); // Вывод кода нажатой клавиши
+        System.out.println(e.getKeyCode()); // Key print
         e.consume();
     }
     
     public void keyReleased(KeyEvent e) {}
     public void keyTyped(KeyEvent e) {}
-    //
-    ////////////////////////////////////////
-
-    ////////////////////////////////////////
-    //
-    //
-    //
     
     
     public void mouseClicked(MouseEvent e) {}
@@ -510,27 +498,4 @@ public class HanoyGame extends JFrame implements Runnable, KeyListener, MouseInp
         }
         return rect;
     }
-    
-    /*
-    private int chooseRect(int X, int Y) {
-        int rect = -1;
-        for (int i = 0; i <= HANOY_RECTS_COUNT - 1; i++) {
-            boolean isXInRect = ( (hanoyRects[i].getX() < X) && (X < hanoyRects[i].getX() + hanoyRects[i].getWidth()) );
-            boolean isYInRect = ( (hanoyRects[i].getY() < Y) && (Y < hanoyRects[i].getY() + hanoyRects[i].getHeight()) );
-            if (isXInRect && isYInRect) { 
-                rect = i;
-                System.out.println(rect);
-            }
-        }
-        if (rect >= 0) {
-            int stackTop = hanoyColumns[hanoyRects[rect].column].stackTop;
-            int topInSizeInColumn = hanoyColumns[hanoyRects[rect].column].stack[stackTop];
-            if (hanoyRects[rect].sizeIndex != topInSizeInColumn) {
-                rect = -1;
-            }
-        }
-        return rect;
-    }
-    */
-
 }
